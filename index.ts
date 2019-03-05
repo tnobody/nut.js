@@ -27,5 +27,6 @@ const mouse = new Mouse(nativeActions);
 const movement = new Movement(nativeActions, new LineHelper());
 const screen = new Screen(screenActions);
 const assert = new Assert(screen);
+const highlight = Screen.highlight;
 
-export { clipboard, keyboard, mouse, movement, screen, assert };
+export { clipboard, keyboard, mouse, movement, screen, assert, highlight };

@@ -1,7 +1,8 @@
-import { assert, Key, keyboard, Location, mouse, movement, screen } from "./index";
+import { assert, highlight, Key, keyboard, Location, mouse, movement, screen } from "./index";
 
 const openXfceMenu = async () => {
   const menu = await screen.find("menu.png");
+  await highlight(menu);
   await mouse.move(await movement.straightTo(Location.centerOf(menu)));
   await mouse.leftClick();
   await mouse.leftClick();
@@ -15,12 +16,15 @@ const run = async (cmd: string) => {
 
 const calculate = async () => {
   const plus = await screen.find("plus.png");
+  await highlight(plus);
   await mouse.move(await movement.straightTo(Location.centerOf(plus)));
   await mouse.leftClick();
   const one = await screen.find("one.png");
+  await highlight(one);
   await mouse.move(await movement.straightTo(Location.centerOf(one)));
   await mouse.leftClick();
   const zero = await screen.find("zero.png");
+  await highlight(zero);
   await mouse.move(await movement.straightTo(Location.centerOf(zero)));
   await mouse.leftClick();
   await mouse.leftClick();
@@ -29,6 +33,7 @@ const calculate = async () => {
 
 const close = async () => {
   const x = await screen.find("close.png");
+  await highlight(x);
   await mouse.move(await movement.straightTo(Location.centerOf(x)));
   await mouse.leftClick();
 };
