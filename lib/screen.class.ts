@@ -5,9 +5,15 @@ import { FileType } from "./file-type.enum";
 import { generateOutputPath } from "./generate-output-path.function";
 import { LocationParameters } from "./locationparameters.class";
 import { MatchRequest } from "./match-request.class";
+import { Point } from "./point.class";
 import { Region } from "./region.class";
 
 export class Screen {
+
+  public static highlight(target: Region | Point): Promise<void> {
+    return VisionAdapter.highlight(target);
+  }
+
   public config = {
     confidence: 0.99,
     resourceDirectory: "./",

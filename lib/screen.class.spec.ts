@@ -3,6 +3,7 @@ import { Image } from "./image.class";
 import { LocationParameters } from "./locationparameters.class";
 import { MatchRequest } from "./match-request.class";
 import { MatchResult } from "./match-result.class";
+import { Point } from "./point.class";
 import { Region } from "./region.class";
 import { Screen } from "./screen.class";
 
@@ -11,7 +12,9 @@ jest.mock("./adapter/vision.adapter.class");
 
 const searchRegion = new Region(0, 0, 100, 100);
 
-beforeAll(() => {
+beforeEach(() => {
+  jest.resetAllMocks();
+
   VisionAdapter.prototype.grabScreen = jest.fn(() => {
     return new Image(searchRegion.width, searchRegion.height, new ArrayBuffer(0), 3);
   });
@@ -19,6 +22,8 @@ beforeAll(() => {
   VisionAdapter.prototype.screenSize = jest.fn(() => {
     return searchRegion;
   });
+
+  VisionAdapter.highlight = jest.fn();
 });
 
 describe("Screen.", () => {
@@ -35,11 +40,11 @@ describe("Screen.", () => {
     const imagePath = "test/path/to/image.png";
     await expect(SUT.find(imagePath)).resolves.toEqual(matchResult.location);
     const matchRequest = new MatchRequest(
-        expect.any(Image),
-        imagePath,
-        searchRegion,
-        SUT.config.confidence,
-        true);
+      expect.any(Image),
+      imagePath,
+      searchRegion,
+      SUT.config.confidence,
+      true);
     expect(visionAdapterMock.findOnScreenRegion).toHaveBeenCalledWith(matchRequest);
   });
 
@@ -55,8 +60,8 @@ describe("Screen.", () => {
     const SUT = new Screen(visionAdapterMock);
     const imagePath = "test/path/to/image.png";
     await expect(SUT.find(imagePath))
-        .rejects
-        .toEqual(`No match for ${imagePath}. Required: ${SUT.config.confidence}, given: ${matchResult.confidence}`);
+      .rejects
+      .toEqual(`No match for ${imagePath}. Required: ${SUT.config.confidence}, given: ${matchResult.confidence}`);
   });
 
   it("should override default confidence value with parameter.", async () => {
@@ -75,11 +80,11 @@ describe("Screen.", () => {
     const parameters = new LocationParameters(undefined, minMatch);
     await expect(SUT.find(imagePath, parameters)).resolves.toEqual(matchResult.location);
     const matchRequest = new MatchRequest(
-        expect.any(Image),
-        imagePath,
-        searchRegion,
-        minMatch,
-        true);
+      expect.any(Image),
+      imagePath,
+      searchRegion,
+      minMatch,
+      true);
     expect(visionAdapterMock.findOnScreenRegion).toHaveBeenCalledWith(matchRequest);
   });
 
@@ -99,11 +104,11 @@ describe("Screen.", () => {
     const parameters = new LocationParameters(customSearchRegion);
     await expect(SUT.find(imagePath, parameters)).resolves.toEqual(matchResult.location);
     const matchRequest = new MatchRequest(
-        expect.any(Image),
-        imagePath,
-        customSearchRegion,
-        SUT.config.confidence,
-        true);
+      expect.any(Image),
+      imagePath,
+      customSearchRegion,
+      SUT.config.confidence,
+      true);
     expect(visionAdapterMock.findOnScreenRegion).toHaveBeenCalledWith(matchRequest);
   });
 
@@ -124,11 +129,35 @@ describe("Screen.", () => {
     const parameters = new LocationParameters(customSearchRegion, minMatch);
     await expect(SUT.find(imagePath, parameters)).resolves.toEqual(matchResult.location);
     const matchRequest = new MatchRequest(
-        expect.any(Image),
-        imagePath,
-        customSearchRegion,
-        minMatch,
-        true);
+      expect.any(Image),
+      imagePath,
+      customSearchRegion,
+      minMatch,
+      true);
     expect(visionAdapterMock.findOnScreenRegion).toHaveBeenCalledWith(matchRequest);
+  });
+
+  it("should delegate highlight calls for Regions to VisionAdapter", () => {
+    // GIVEN
+    const targetRegion = new Region(0, 0, 100, 100);
+
+    // WHEN
+    Screen.highlight(targetRegion);
+
+    // THEN
+    expect(VisionAdapter.highlight).toBeCalledTimes(1);
+    expect(VisionAdapter.highlight).toBeCalledWith(targetRegion);
+  });
+
+  it("should delegate highlight calls for Points to VisionAdapter", () => {
+    // GIVEN
+    const targetPoint = new Point(10, 10);
+
+    // WHEN
+    Screen.highlight(targetPoint);
+
+    // THEN
+    expect(VisionAdapter.highlight).toBeCalledTimes(1);
+    expect(VisionAdapter.highlight).toBeCalledWith(targetPoint);
   });
 });
