@@ -1,12 +1,19 @@
 import { Image } from "../image.class";
 import { MatchRequest } from "../match-request.class";
+import { Point } from "../point.class";
 import { ScreenAction } from "../provider/native/robotjs-screen-action.class";
+import { highlight } from "../provider/opencv/highlight.function";
 import { TemplateMatchingFinder } from "../provider/opencv/template-matching-finder.class";
 import { Region } from "../region.class";
 import { VisionAdapter } from "./vision.adapter.class";
 
 jest.mock("../provider/opencv/template-matching-finder.class");
+jest.mock("../provider/opencv/highlight.function");
 jest.mock("../provider/native/robotjs-screen-action.class");
+
+beforeEach(() => {
+  jest.resetAllMocks();
+});
 
 describe("VisionAdapter class", () => {
   it("should delegate calls to grabScreen", () => {
@@ -92,5 +99,27 @@ describe("VisionAdapter class", () => {
 
     expect(finderMock.findMatch).toBeCalledTimes(1);
     expect(finderMock.findMatch).toBeCalledWith(request);
+  });
+
+  it("should delegate calls to highlight for Regions", () => {
+    // GIVEN
+    const targetRegion = new Region(0, 0, 100, 100);
+
+    // WHEN
+    VisionAdapter.highlight(targetRegion);
+
+    expect(highlight).toBeCalledTimes(1);
+    expect(highlight).toBeCalledWith(targetRegion);
+  });
+
+  it("should delegate calls to highlight for Points", () => {
+    // GIVEN
+    const targetPoint = new Point(100, 100);
+
+    // WHEN
+    VisionAdapter.highlight(targetPoint);
+
+    expect(highlight).toBeCalledTimes(1);
+    expect(highlight).toBeCalledWith(targetPoint);
   });
 });

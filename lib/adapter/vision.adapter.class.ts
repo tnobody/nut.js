@@ -1,10 +1,12 @@
 import { Image } from "../image.class";
 import { MatchRequest } from "../match-request.class";
 import { MatchResult } from "../match-result.class";
+import { Point } from "../point.class";
 import { ScreenAction } from "../provider/native/robotjs-screen-action.class";
 import { ScreenActionProvider } from "../provider/native/screen-action-provider.interface";
 import { DataSink } from "../provider/opencv/data-sink.interface";
 import { FinderInterface } from "../provider/opencv/finder.interface";
+import { highlight } from "../provider/opencv/highlight.function";
 import { ImageWriter } from "../provider/opencv/image-writer.class";
 import { TemplateMatchingFinder } from "../provider/opencv/template-matching-finder.class";
 import { Region } from "../region.class";
@@ -17,6 +19,20 @@ import { Region } from "../region.class";
  * All actions which involve screenshots / images are bundled in this adapter.
  */
 export class VisionAdapter {
+
+  /**
+   * highlight highlights a region on a screen
+   *
+   * @param target Region or Point to highlight
+   * @memberof VisionAdapter
+   */
+  public static highlight(target: Region | Point): Promise<void> {
+    return new Promise<void>(async resolve => {
+      await highlight(target);
+      resolve();
+    });
+  }
+
   constructor(
     private finder: FinderInterface = new TemplateMatchingFinder(),
     private screen: ScreenActionProvider = new ScreenAction(),
@@ -104,7 +120,10 @@ export class VisionAdapter {
    * @param path The storage path
    * @memberof VisionAdapter
    */
-  public saveImage(image: Image, path: string) {
-    (this.dataSink as ImageWriter).store(image, path);
+  public saveImage(image: Image, path: string): Promise<void> {
+    return new Promise<void>(resolve => {
+      (this.dataSink as ImageWriter).store(image, path);
+      resolve();
+    });
   }
 }
